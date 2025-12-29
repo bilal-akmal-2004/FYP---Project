@@ -115,10 +115,10 @@ function AuthForm() {
       >
         <div className="flex flex-col items-center">
           <div className="relative w-16 h-16 mb-4">
-            <div className="absolute inset-0 rounded-full border-4 border-green-200 dark:border-green-900"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-green-600 dark:border-t-green-400 animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-900"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 dark:border-t-blue-400 animate-spin"></div>
             <div className="absolute inset-2 flex items-center justify-center text-2xl">
-              🩺
+              🎓
             </div>
           </div>
           <p
@@ -139,15 +139,15 @@ function AuthForm() {
     <div
       className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${
         theme === "light"
-          ? "bg-gradient-to-br from-green-50 to-white"
+          ? "bg-gradient-to-br from-blue-50 to-indigo-50"
           : "bg-gradient-to-br from-gray-900 to-gray-800"
       }`}
     >
       <div
         className={`w-full max-w-md p-8 rounded-3xl shadow-2xl ${
           theme === "light"
-            ? "bg-white border border-green-100"
-            : "bg-gray-800 border border-gray-700"
+            ? "bg-white border border-blue-100 shadow-[0_20px_60px_-15px_rgba(59,130,246,0.3)]"
+            : "bg-gray-800 border border-gray-700 shadow-[0_20px_60px_-15px_rgba(30,64,175,0.3)]"
         }`}
       >
         {loading && <LoadingSpinner />}
@@ -155,15 +155,15 @@ function AuthForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">H</span>
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">E</span>
             </div>
             <span
               className={`text-3xl font-bold ${
-                theme === "light" ? "text-green-600" : "text-green-400"
+                theme === "light" ? "text-blue-600" : "text-blue-400"
               }`}
             >
-              HealthMate
+              EduConnect
             </span>
           </div>
           <h1 className="text-2xl font-bold mb-2">
@@ -171,8 +171,8 @@ function AuthForm() {
           </h1>
           <p className={theme === "light" ? "text-gray-600" : "text-gray-300"}>
             {formState === "Sign up"
-              ? "Join HealthMate and take control of your health"
-              : "Sign in to your HealthMate account"}
+              ? "Join EduConnect and enhance your academic experience"
+              : "Sign in to your EduConnect account"}
           </p>
         </div>
 
@@ -187,11 +187,11 @@ function AuthForm() {
                 loading
                   ? "opacity-70 cursor-not-allowed"
                   : theme === "light"
-                  ? "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200"
-                  : "bg-gray-700 text-white hover:bg-gray-600 border border-gray-600"
+                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-gray-800 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 hover:border-blue-300"
+                  : "bg-gradient-to-r from-gray-700 to-gray-800 text-white hover:from-gray-600 hover:to-gray-700 border border-gray-600 hover:border-gray-500"
               }`}
             >
-              <div className="bg-white p-1 rounded-full">
+              <div className="bg-white p-1 rounded-full shadow-sm">
                 <svg className="w-5" viewBox="0 0 533.5 544.3">
                   <path
                     d="M533.5 278.4c0-18.5-1.5-37.1-4.7-55.3H272.1v104.8h147c-6.1 33.8-25.7 63.7-54.4 82.7v68h87.7c51.5-47.4 81.1-117.4 81.1-200.2z"
@@ -224,7 +224,7 @@ function AuthForm() {
             <div className="absolute inset-0 flex items-center">
               <div
                 className={`w-full border-t ${
-                  theme === "light" ? "border-gray-300" : "border-gray-600"
+                  theme === "light" ? "border-blue-200" : "border-gray-600"
                 }`}
               ></div>
             </div>
@@ -248,8 +248,8 @@ function AuthForm() {
                 <input
                   className={`w-full px-4 py-3 rounded-xl font-medium text-sm focus:outline-none transition-all duration-300 ${
                     theme === "light"
-                      ? "bg-gray-50 border border-gray-200 placeholder-gray-500 text-black focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
-                      : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-green-500 focus:bg-gray-600 focus:ring-2 focus:ring-green-900"
+                      ? "bg-blue-50 border border-blue-200 placeholder-gray-500 text-black focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-200"
+                      : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-blue-500 focus:bg-gray-600 focus:ring-2 focus:ring-blue-900"
                   }`}
                   type="text"
                   placeholder="Full Name"
@@ -270,12 +270,12 @@ function AuthForm() {
               <input
                 className={`w-full px-4 py-3 rounded-xl font-medium text-sm focus:outline-none transition-all duration-300 ${
                   theme === "light"
-                    ? "bg-gray-50 border border-gray-200 placeholder-gray-500 text-black focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
-                    : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-green-500 focus:bg-gray-600 focus:ring-2 focus:ring-green-900"
+                    ? "bg-blue-50 border border-blue-200 placeholder-gray-500 text-black focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-200"
+                    : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-blue-500 focus:bg-gray-600 focus:ring-2 focus:ring-blue-900"
                 }`}
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder="Email Address"
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
@@ -289,8 +289,8 @@ function AuthForm() {
               <input
                 className={`w-full px-4 py-3 rounded-xl font-medium text-sm focus:outline-none transition-all duration-300 ${
                   theme === "light"
-                    ? "bg-gray-50 border border-gray-200 placeholder-gray-500 text-black focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
-                    : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-green-500 focus:bg-gray-600 focus:ring-2 focus:ring-green-900"
+                    ? "bg-blue-50 border border-blue-200 placeholder-gray-500 text-black focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-200"
+                    : "bg-gray-700 border border-gray-600 placeholder-gray-400 text-white focus:border-blue-500 focus:bg-gray-600 focus:ring-2 focus:ring-blue-900"
                 }`}
                 type="password"
                 name="password"
@@ -310,12 +310,8 @@ function AuthForm() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 ease-in-out flex items-center justify-center focus:outline-none mt-6 ${
-                loading
-                  ? "opacity-70 cursor-not-allowed"
-                  : theme === "light"
-                  ? "bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-xl"
-                  : "bg-green-600 text-white hover:bg-green-500 shadow-lg hover:shadow-xl"
+              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 ease-in-out flex items-center justify-center focus:outline-none mt-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl active:scale-[0.98] ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
               {formState === "Sign up" ? (
@@ -333,7 +329,17 @@ function AuthForm() {
                   Create Account
                 </>
               ) : (
-                "Sign In"
+                <>
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M13.5 12H3" />
+                  </svg>
+                  Sign In
+                </>
               )}
             </button>
           </div>
@@ -353,9 +359,7 @@ function AuthForm() {
                       setFormData({ ...formData, name: "" });
                       setErrors({});
                     }}
-                    className={`font-medium hover:underline ${
-                      theme === "light" ? "text-green-600" : "text-green-400"
-                    }`}
+                    className={`font-medium hover:underline bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent`}
                     disabled={loading}
                   >
                     Sign in here
@@ -370,9 +374,7 @@ function AuthForm() {
                       setFormState("Sign up");
                       setErrors({});
                     }}
-                    className={`font-medium hover:underline ${
-                      theme === "light" ? "text-green-600" : "text-green-400"
-                    }`}
+                    className={`font-medium hover:underline bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent`}
                     disabled={loading}
                   >
                     Create one here
@@ -388,12 +390,12 @@ function AuthForm() {
               theme === "light" ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            By continuing, you agree to HealthMate's{" "}
-            <a href="#" className="underline hover:no-underline">
+            By continuing, you agree to EduConnect's{" "}
+            <a href="#" className="underline hover:no-underline text-blue-500">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="#" className="underline hover:no-underline">
+            <a href="#" className="underline hover:no-underline text-blue-500">
               Privacy Policy
             </a>
           </p>

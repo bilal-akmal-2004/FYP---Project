@@ -3,18 +3,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { createRequire } from "module";
-import { protect } from "./middleware/authMiddleware.js";
-
-const require = createRequire(import.meta.url);
-const pdfModule = require("pdf-parse");
-const pdfParse = pdfModule.default || pdfModule;
-
-import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
-import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
-
+import authRoutes from "./routes/authRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -41,8 +32,6 @@ mongoose
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_API_KEY,
 });
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 // Routes
 app.use("/api/auth", authRoutes);

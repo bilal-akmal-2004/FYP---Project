@@ -31,7 +31,7 @@ export default function App() {
 
   // Wrapper to provide Google OAuth specifically for the AuthForm component
   const GoogleWrapper = () => (
-    <GoogleOAuthProvider clientId="1079183921375-uqqvv5cbsjot1ibuj2huiut53ntacjr0.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="336633300550-038ggso69ivi0c00en1k49msg3lbpsa7.apps.googleusercontent.com">
       <AuthForm />
     </GoogleOAuthProvider>
   );
