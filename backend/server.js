@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://your-deployment-url.vercel.app"],
+    origin: ["http://localhost:5173", "https://fyp-project-backend.vercel.app"],
     credentials: true,
   })
 );
