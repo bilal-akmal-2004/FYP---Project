@@ -17,6 +17,124 @@ const ChatbotTab = () => {
   const inputRef = useRef(null);
   const chatContainerRef = useRef(null);
 
+  // Helper function to extract first user message for title
+  const extractChatTitle = (messagesArray) => {
+    if (!messagesArray || messagesArray.length === 0) {
+      return "University Chat";
+    }
+
+    // Find first user message
+    const firstUserMessage = messagesArray.find((msg) => msg.role === "user");
+
+    if (firstUserMessage && firstUserMessage.content) {
+      const content = firstUserMessage.content.trim();
+
+      // Truncate if too long
+      if (content.length > 40) {
+        return content.substring(0, 40) + "...";
+      }
+
+      // Capitalize first letter
+      return content.charAt(0).toUpperCase() + content.slice(1);
+    }
+
+    // If no user message found, check if there's any message
+    const firstMessage = messagesArray[0];
+    if (firstMessage && firstMessage.content) {
+      const content = firstMessage.content.trim();
+      if (content.length > 40) {
+        return content.substring(0, 40) + "...";
+      }
+      return content.charAt(0).toUpperCase() + content.slice(1);
+    }
+
+    return "University Chat";
+  };
+
+  // Function to parse text and convert URLs to clickable links
+  const parseMessageContent = (content) => {
+    if (!content) return content;
+
+    // Regular expression to find URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    // Split content by URLs and map to elements
+    const parts = content.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        // Clean up URL if it ends with punctuation
+        let cleanUrl = part;
+        const punctuation = [".", ",", "!", "?", ":", ";", ")", "]", "}"];
+
+        // Remove trailing punctuation from URL
+        punctuation.forEach((punct) => {
+          if (cleanUrl.endsWith(punct) && !cleanUrl.endsWith(`.${punct}`)) {
+            cleanUrl = cleanUrl.slice(0, -1);
+          }
+        });
+
+        // Extract domain for display
+        let displayText = cleanUrl;
+        try {
+          const urlObj = new URL(cleanUrl);
+          displayText = urlObj.hostname.replace("www.", "");
+          // Add path if not too long
+          if (urlObj.pathname !== "/" && urlObj.pathname.length < 30) {
+            displayText += urlObj.pathname;
+          }
+        } catch (e) {
+          // If URL parsing fails, use original text
+          displayText =
+            cleanUrl.length > 50 ? cleanUrl.substring(0, 50) + "..." : cleanUrl;
+        }
+
+        return (
+          <a
+            key={index}
+            href={cleanUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-200 hover:scale-[1.02] ${
+              theme === "light"
+                ? "text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200"
+                : "text-blue-400 bg-blue-900/30 hover:bg-blue-900/50 border border-blue-800"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.info(`Opening: ${displayText}`, {
+                autoClose: 2000,
+                hideProgressBar: true,
+              });
+            }}
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
+            </svg>
+            <span className="text-xs font-medium">{displayText}</span>
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
+  // Function to check if text contains URLs
+  const containsURLs = (content) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return urlRegex.test(content);
+  };
+
   // Initial greeting message
   useEffect(() => {
     const greetingMessage = {
@@ -85,7 +203,7 @@ const ChatbotTab = () => {
         const finalMessages = [...updatedMessages, aiMessage];
         setMessages(finalMessages);
 
-        // Save to database
+        // Save to database with dynamic title
         await saveChat(finalMessages);
       } else {
         throw new Error(response.data.error || "Failed to get response");
@@ -101,6 +219,10 @@ const ChatbotTab = () => {
       };
 
       setMessages([...updatedMessages, errorMessage]);
+
+      // Even on error, save the conversation with dynamic title
+      await saveChat([...updatedMessages, errorMessage]);
+
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
@@ -110,20 +232,23 @@ const ChatbotTab = () => {
 
   const saveChat = async (messagesToSave) => {
     try {
+      const chatTitle = extractChatTitle(messagesToSave);
+
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/chats/save`,
         {
           chatId,
           messages: messagesToSave,
-          title:
-            messagesToSave[0]?.content?.substring(0, 50) || "University Chat",
+          title: chatTitle,
         },
         { withCredentials: true }
       );
 
-      if (response.data.success && !chatId) {
-        setChatId(response.data.chat._id);
-        loadChatHistory(); // Refresh history
+      if (response.data.success) {
+        if (!chatId) {
+          setChatId(response.data.chat._id);
+        }
+        loadChatHistory(); // Refresh history with new title
       }
     } catch (error) {
       console.error("Error saving chat:", error);
@@ -171,6 +296,11 @@ const ChatbotTab = () => {
       );
       loadChatHistory();
       toast.success("Chat deleted");
+
+      // If we deleted the currently active chat, start a new one
+      if (chatId === chatIdToDelete) {
+        startNewChat();
+      }
     } catch (error) {
       console.error("Error deleting chat:", error);
       toast.error("Failed to delete chat");
@@ -184,7 +314,19 @@ const ChatbotTab = () => {
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString();
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "Yesterday";
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -206,10 +348,7 @@ const ChatbotTab = () => {
   return (
     <div className="h-full flex flex-col lg:flex-row">
       {/* Fixed Sidebar - Desktop Only */}
-      <div
-        className="fixed left-0 h-screen
- hidden lg:flex flex-col w-64 border-r flex-shrink-0"
-      >
+      <div className="fixed left-0 h-screen hidden lg:flex flex-col w-64 border-r flex-shrink-0">
         {/* Sidebar Header */}
         <div
           className={`p-4 border-b ${
@@ -265,7 +404,7 @@ const ChatbotTab = () => {
         >
           <div className="mb-4">
             <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">
-              Recent Chats
+              Chat History
             </h3>
           </div>
 
@@ -296,24 +435,26 @@ const ChatbotTab = () => {
                         {chat.title}
                       </p>
                     </div>
-                    <p
-                      className={`text-xs truncate ${
-                        chatId === chat._id
-                          ? "text-blue-100"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      {formatDate(chat.updatedAt)}
-                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <p
+                        className={`text-xs ${
+                          chatId === chat._id
+                            ? "text-blue-100"
+                            : "text-gray-500 dark:text-gray-400"
+                        }`}
+                      >
+                        {formatDate(chat.updatedAt)}
+                      </p>
+                    </div>
                   </div>
                   <button
                     onClick={(e) => deleteChat(chat._id, e)}
                     className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
                       chatId === chat._id
-                        ? "hover:bg-blue-600"
+                        ? "hover:bg-gray-500 text-white"
                         : theme === "light"
-                        ? "hover:bg-gray-300"
-                        : "hover:bg-gray-600"
+                        ? "hover:bg-gray-300 text-black"
+                        : "text-white hover:bg-gray-300 hover:text-black"
                     }`}
                   >
                     <svg
@@ -350,8 +491,11 @@ const ChatbotTab = () => {
                     />
                   </svg>
                 </div>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  No chat history
+                <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">
+                  No chat history yet
+                </p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs">
+                  Start a conversation to see it here
                 </p>
               </div>
             )}
@@ -406,7 +550,7 @@ const ChatbotTab = () => {
                   <h3 className="font-semibold">Chat History</h3>
                   <button
                     onClick={startNewChat}
-                    className="text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600"
+                    className="text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200"
                   >
                     New Chat
                   </button>
@@ -418,16 +562,21 @@ const ChatbotTab = () => {
                       onClick={() => loadChat(chat)}
                       className={`p-3 rounded-lg cursor-pointer ${
                         chatId === chat._id
-                          ? "bg-blue-100 dark:bg-blue-900"
+                          ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
                           : theme === "light"
-                          ? "bg-gray-100"
-                          : "bg-gray-700"
+                          ? "bg-gray-100 hover:bg-gray-200"
+                          : "bg-gray-700 hover:bg-gray-600"
                       }`}
                     >
                       <p className="font-medium truncate">{chat.title}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(chat.updatedAt)}
-                      </p>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs opacity-75">
+                          {formatDate(chat.updatedAt)}
+                        </p>
+                        <span className="text-xs opacity-75">
+                          {chat.messages?.length || 0} msgs
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -436,8 +585,7 @@ const ChatbotTab = () => {
           )}
         </AnimatePresence>
 
-        {/* Chat Messages Container - Scrollable with custom scrollbar */}
-        {/* Chat Messages Container - Scrollable with custom scrollbar */}
+        {/* Chat Messages Container */}
         <div
           ref={chatContainerRef}
           className="flex-1 overflow-y-auto px-4 sm:px-6 py-6"
@@ -448,8 +596,8 @@ const ChatbotTab = () => {
           }}
         >
           <div className="max-w-3xl mx-auto">
-            {/* Welcome Header */}
-            {messages.length === 1 && (
+            {/* Welcome Header - Only show when no user messages yet */}
+            {messages.length === 1 && messages[0].role === "assistant" && (
               <div className="text-center mb-8 px-2 sm:px-0">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                   <span className="text-2xl">❐</span>
@@ -513,49 +661,79 @@ const ChatbotTab = () => {
                           <span className="text-xs opacity-75">
                             {formatTime(message.timestamp)}
                           </span>
+                          {message.role === "assistant" &&
+                            containsURLs(message.content) && (
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                                Contains Links
+                              </span>
+                            )}
                         </div>
                       </div>
                     </div>
                     <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
-                      {message.content}
+                      {parseMessageContent(message.content)}
                     </div>
+
+                    {/* URL indicator for assistant messages */}
+                    {message.role === "assistant" &&
+                      containsURLs(message.content) && (
+                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                            <span>Clickable links will open in a new tab</span>
+                          </div>
+                        </div>
+                      )}
                   </div>
                 </motion.div>
               ))}
 
-              {/* Quick Questions */}
-              {messages.length <= 2 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-8 px-2 sm:px-0"
-                >
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm font-medium">
-                    Try asking about:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {quickQuestions.map((question, index) => (
-                      <motion.button
-                        key={index}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          setInputMessage(question);
-                          inputRef.current?.focus();
-                        }}
-                        className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-                          theme === "light"
-                            ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                        }`}
-                      >
-                        {question}
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+              {/* Quick Questions - Only show at the beginning */}
+              {messages.length <= 2 &&
+                messages.every((msg) => msg.role === "assistant") && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-8 px-2 sm:px-0"
+                  >
+                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm font-medium">
+                      Try asking about:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {quickQuestions.map((question, index) => (
+                        <motion.button
+                          key={index}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setInputMessage(question);
+                            inputRef.current?.focus();
+                          }}
+                          className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                            theme === "light"
+                              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                          }`}
+                        >
+                          {question}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
 
               {/* Loading Indicator */}
               {isLoading && (
@@ -592,7 +770,7 @@ const ChatbotTab = () => {
           </div>
         </div>
 
-        {/* Input Area - Fixed at bottom */}
+        {/* Input Area */}
         <div
           className={`border-t p-4 sm:p-6 rounded-2xl ${
             theme === "light"
@@ -658,7 +836,7 @@ const ChatbotTab = () => {
                 Press Enter to send • Shift+Enter for new line
               </span>
               <span className="text-xs opacity-75">
-                {messages.length - 1} messages
+                {messages.filter((m) => m.role === "user").length} user messages
               </span>
             </div>
           </div>
@@ -694,22 +872,15 @@ const ChatbotTab = () => {
             theme === "light" ? "#bfdbfe #f1f5f9" : "#4b5563 #1f2937"
           };
         }
-        
-        /* Chat container specific scrollbar */
-        ${
-          chatContainerRef.current
-            ? `
-          #chat-container::-webkit-scrollbar-track {
-            background: transparent;
-          }
-          
-          #chat-container::-webkit-scrollbar-thumb {
-            background: ${theme === "light" ? "#cbd5e1" : "#4b5563"};
-            border: 2px solid transparent;
-            background-clip: content-box;
-          }
-        `
-            : ""
+
+        /* URL link styling */
+        a {
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        a:hover {
+          text-decoration: none;
         }
       `}</style>
     </div>
