@@ -7,6 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import postRouter from "./routes/postRoutes.js";
 import { protect } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -131,6 +132,7 @@ app.post("/api/chat", protect, async (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/posts", postRouter);
 
 app.get("/", (req, res) => {
   res.send("EduConnect Server is running.");
