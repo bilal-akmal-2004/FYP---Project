@@ -5,10 +5,12 @@ import {
   getPosts,
   likePost,
 } from "../controllers/postController.js";
+import upload from "../middleware/multer.js";
 
 const router = express.Router();
 
-router.post("/create", protectRoute, createPost);
+// Use multer middleware for file upload
+router.post("/create", protectRoute, upload.single("image"), createPost);
 router.get("/", protectRoute, getPosts);
 router.post("/:postId/like", protectRoute, likePost);
 

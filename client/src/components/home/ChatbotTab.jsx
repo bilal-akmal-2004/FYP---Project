@@ -160,7 +160,7 @@ const ChatbotTab = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/chats`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       if (response.data.success) {
         setChatHistory(response.data.chats);
@@ -190,7 +190,7 @@ const ChatbotTab = () => {
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/chat`,
         { messages: updatedMessages },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -241,7 +241,7 @@ const ChatbotTab = () => {
           messages: messagesToSave,
           title: chatTitle,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -259,7 +259,7 @@ const ChatbotTab = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/chats/${chat._id}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -292,7 +292,7 @@ const ChatbotTab = () => {
     try {
       await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}/api/chats/${chatIdToDelete}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       loadChatHistory();
       toast.success("Chat deleted");
@@ -419,8 +419,8 @@ const ChatbotTab = () => {
                   chatId === chat._id
                     ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg"
                     : theme === "light"
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                    : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                      ? "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                      : "bg-gray-800 hover:bg-gray-700 text-gray-300"
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -453,8 +453,8 @@ const ChatbotTab = () => {
                       chatId === chat._id
                         ? "hover:bg-gray-500 text-white"
                         : theme === "light"
-                        ? "hover:bg-gray-300 text-black"
-                        : "text-white hover:bg-gray-300 hover:text-black"
+                          ? "hover:bg-gray-300 text-black"
+                          : "text-white hover:bg-gray-300 hover:text-black"
                     }`}
                   >
                     <svg
@@ -564,8 +564,8 @@ const ChatbotTab = () => {
                         chatId === chat._id
                           ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
                           : theme === "light"
-                          ? "bg-gray-100 hover:bg-gray-200"
-                          : "bg-gray-700 hover:bg-gray-600"
+                            ? "bg-gray-100 hover:bg-gray-200"
+                            : "bg-gray-700 hover:bg-gray-600"
                       }`}
                     >
                       <p className="font-medium truncate">{chat.title}</p>
@@ -573,9 +573,6 @@ const ChatbotTab = () => {
                         <p className="text-xs opacity-75">
                           {formatDate(chat.updatedAt)}
                         </p>
-                        <span className="text-xs opacity-75">
-                          {chat.messages?.length || 0} msgs
-                        </span>
                       </div>
                     </div>
                   ))}
@@ -629,8 +626,8 @@ const ChatbotTab = () => {
                       message.role === "user"
                         ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg"
                         : theme === "light"
-                        ? "bg-white border border-gray-200 shadow-sm"
-                        : "bg-gray-800 border border-gray-700"
+                          ? "bg-white border border-gray-200 shadow-sm"
+                          : "bg-gray-800 border border-gray-700"
                     }`}
                   >
                     <div className="flex items-center gap-3 mb-3">
@@ -807,8 +804,8 @@ const ChatbotTab = () => {
                     inputMessage.trim()
                       ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
                       : theme === "light"
-                      ? "bg-gray-300 text-gray-600"
-                      : "bg-gray-700 text-gray-400"
+                        ? "bg-gray-300 text-gray-600"
+                        : "bg-gray-700 text-gray-400"
                   }`}
                 >
                   {isLoading ? (

@@ -2,24 +2,30 @@ import Post from "../models/Post.js";
 import Like from "../models/Like.js";
 import cloudinary from "../config/cloudinary.js";
 
-// Create a new post with base64 image
+// Create a new post with file upload
 export const createPost = async (req, res) => {
   try {
-    const { description, link, image } = req.body;
+    const { description, link } = req.body;
     let imageUrl = null;
 
     // Upload image to Cloudinary if provided
-    if (image) {
+    if (req.file) {
       try {
-        const result = await cloudinary.uploader.upload(image, {
+        console.log("Uploading file to Cloudinary...");
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
           folder: "educonnect_posts",
+          transformation: [{ quality: "auto:good" }, { fetch_format: "auto" }],
         });
+
         imageUrl = result.secure_url;
+        console.log("Upload successful:", imageUrl);
       } catch (uploadError) {
         console.error("Cloudinary upload error:", uploadError);
         return res.status(500).json({
           success: false,
-          msg: "Failed to upload image",
+          msg: "Failed to upload image. Please try again.",
         });
       }
     }
@@ -52,6 +58,8 @@ export const createPost = async (req, res) => {
   }
 };
 
+// Rest of your controller remains the same...
+
 // Get all posts
 export const getPosts = async (req, res) => {
   try {
@@ -71,7 +79,7 @@ export const getPosts = async (req, res) => {
           isLiked: !!isLiked,
           likes: await Like.countDocuments({ post: post._id }),
         };
-      })
+      }),
     );
 
     res.json({ success: true, posts: postsWithLikes });
