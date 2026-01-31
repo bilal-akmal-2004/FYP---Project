@@ -506,7 +506,7 @@ const ChatbotTab = () => {
       <div className="lg:p-40"></div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mb-13.5">
         {/* Mobile Header */}
         <div className="lg:hidden p-4 border-b ">
           <div className="flex items-center justify-between">

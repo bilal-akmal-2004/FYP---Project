@@ -19,7 +19,7 @@ function HomePage() {
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       toast.success("User logged out successfully.");
       navigate("/");
@@ -115,8 +115,8 @@ function HomePage() {
                     activeTab === item.id
                       ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg"
                       : theme === "light"
-                      ? "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-blue-400"
+                        ? "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-blue-400"
                   }`}
                 >
                   <span className="text-lg">{item.icon}</span>
@@ -151,8 +151,8 @@ function HomePage() {
                 activeTab === item.id
                   ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
                   : theme === "light"
-                  ? "text-gray-700 hover:bg-blue-50"
-                  : "text-gray-300 hover:bg-gray-700"
+                    ? "text-gray-700 hover:bg-blue-50"
+                    : "text-gray-300 hover:bg-gray-700"
               }`}
             >
               <span className="text-xl">{item.emoji}</span>
@@ -160,7 +160,6 @@ function HomePage() {
             </button>
           ))}
         </div>
-
         {/* Logo and Logout on Mobile (Top part of bottom nav) */}
         <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">

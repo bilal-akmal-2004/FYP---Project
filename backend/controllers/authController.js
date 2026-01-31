@@ -140,7 +140,7 @@ export const googleLogin = async (req, res) => {
     oauth2Client.setCredentials(googleRes.tokens);
     console.log("Goggle response: ", googleRes);
     const userRes = await axios.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`,
     );
     const { email, name } = userRes.data;
     // console.log(userRes);
